@@ -31,3 +31,11 @@ def terrain_bounds_from_glb(data: bytes) -> Bounds3D:
         maximum_y=float(maximum[2]),
         maximum_z=float(maximum[1]),
     )
+
+
+def terrain_triangles_from_glb(data: bytes):
+    scene = trimesh.load_scene(BytesIO(data), file_type="glb")
+    triangles = scene.triangles
+    if len(triangles) == 0:
+        raise ValueError("Terrain GLB has no geometry.")
+    return triangles

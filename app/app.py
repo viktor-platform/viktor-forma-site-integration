@@ -8,7 +8,7 @@ from forma_geometry import (
     generate_blocks_in_bounds,
     to_basic_geometry_payload,
 )
-from glb_bounds import Bounds3D, terrain_bounds_from_glb
+from glb_bounds import Bounds3D, terrain_bounds_from_glb, terrain_triangles_from_glb
 
 
 APS_INTEGRATION_NAME = "forma-site"
@@ -49,6 +49,17 @@ Create a block layout within a Forma proposal terrain, preview it, and write it 
         suffix="m",
         num_decimals=1,
         flex=50,
+    )
+
+    terrain_preview_help = vkt.Text("""## Terrain preview
+
+Render the selected proposal's terrain in the 3D preview.
+""")
+    show_terrain = vkt.BooleanField(
+        "Show terrain in 3D preview",
+        default=False,
+        flex=100,
+        description="Loads up to 10,000 terrain triangles into the 3D preview.",
     )
 
     block_settings = vkt.Text("""## Block layout
@@ -129,15 +140,16 @@ class Controller(vkt.Controller):
             region=str(params.region),
         )
         terrain_urn = client.get_proposal_terrain_urn(project_id, proposal_urn)
-        terrain_bounds = terrain_bounds_from_glb(
-            client.download_terrain_glb(project_id, terrain_urn)
-        )
+        terrain_glb = client.download_terrain_glb(project_id, terrain_urn)
+        terrain_bounds = terrain_bounds_from_glb(terrain_glb)
         blocks = _generate_from_params(params, terrain_bounds)
 
         building_material = vkt.Material(
             "Buildings", color=vkt.Color(88, 151, 214)
         )
         objects = []
+        if params.show_terrain:
+            objects.append(_terrain_assembly_from_glb(terrain_glb))
         labels = []
 
         for block in blocks:
@@ -315,3 +327,26 @@ def _generate_from_params(params, terrain_bounds: Bounds3D):
         )
     except (GeometryValidationError, PlacementError) as exc:
         raise vkt.UserError(str(exc)) from exc
+
+
+def _terrain_assembly_from_glb(data: bytes) -> vkt.TriangleAssembly:
+    terrain = [
+        vkt.Triangle(
+            vkt.Point(
+                float(triangle[0][0]), float(triangle[0][2]), float(triangle[0][1])
+            ),
+            vkt.Point(
+                float(triangle[2][0]), float(triangle[2][2]), float(triangle[2][1])
+            ),
+            vkt.Point(
+                float(triangle[1][0]), float(triangle[1][2]), float(triangle[1][1])
+            ),
+        )
+        for triangle in terrain_triangles_from_glb(data)
+    ]
+    return vkt.TriangleAssembly(
+        terrain,
+        material=vkt.Material("Terrain", color=vkt.Color(136, 158, 113), opacity=0.65),
+        skip_duplicate_vertices_check=True,
+        identifier="terrain",
+    )
