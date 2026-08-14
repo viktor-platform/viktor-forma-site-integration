@@ -54,12 +54,14 @@ Create a block layout within a Forma proposal terrain, preview it, and write it 
     terrain_preview_help = vkt.Text("""## Terrain preview
 
 Render the selected proposal's terrain in the 3D preview.
+
+**Note:** This could make the 3D view slow.
 """)
     show_terrain = vkt.BooleanField(
         "Show terrain in 3D preview",
         default=False,
         flex=100,
-        description="Loads up to 10,000 terrain triangles into the 3D preview.",
+        description="Loads all terrain triangles into the 3D preview.",
     )
 
     block_settings = vkt.Text("""## Block layout
