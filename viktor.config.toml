@@ -1,0 +1,6 @@
+app_type = "editor"
+python_version = "3.12"
+registered_name = "forma-site"
+oauth2_integrations = [
+    "forma-site",
+]
