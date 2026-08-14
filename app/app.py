@@ -71,9 +71,7 @@ Set how many blocks to create and the minimum clearance between them. Blocks are
     block_count = vkt.IntegerField(
         "Number of blocks", default=5, min=1, max=50, step=1, flex=50
     )
-    name_prefix = vkt.TextField(
-        "Block name prefix", default="VIKTOR Block", flex=100
-    )
+    name_prefix = vkt.TextField("Block name prefix", default="VIKTOR Block", flex=100)
     clearance = vkt.NumberField(
         "Minimum clearance",
         default=4.0,
@@ -128,9 +126,7 @@ class Controller(vkt.Controller):
         "3D preview",
         x_axis_to_right=True,
         default_shadow=True,
-        description=(
-            "Random local-coordinate preview of building blocks."
-        ),
+        description=("Random local-coordinate preview of building blocks."),
     )
     def geometry_preview(self, params, **kwargs):
         project_id = str(params.project_id or "").strip()
@@ -146,9 +142,7 @@ class Controller(vkt.Controller):
         terrain_bounds = terrain_bounds_from_glb(terrain_glb)
         blocks = _generate_from_params(params, terrain_bounds)
 
-        building_material = vkt.Material(
-            "Buildings", color=vkt.Color(88, 151, 214)
-        )
+        building_material = vkt.Material("Buildings", color=vkt.Color(88, 151, 214))
         objects = []
         if params.show_terrain:
             objects.append(_terrain_assembly_from_glb(terrain_glb))
@@ -157,9 +151,7 @@ class Controller(vkt.Controller):
             box = vkt.RectangularExtrusion(
                 block.width,
                 block.depth,
-                line=vkt.Line(
-                    vkt.Point(0, 0, 0), vkt.Point(0, 0, block.height)
-                ),
+                line=vkt.Line(vkt.Point(0, 0, 0), vkt.Point(0, 0, block.height)),
                 material=building_material,
             )
             box.rotate(block.rotation_radians, direction=[0, 0, 1])
@@ -213,7 +205,7 @@ class Controller(vkt.Controller):
         "Forma proposals",
         duration_guess=5,
         update_label="Load proposals",
-        description="Lists proposal URNs for the entered project/site ID."
+        description="Lists proposal URNs for the entered project/site ID.",
     )
     def forma_proposals(self, params, **kwargs):
         project_id = str(params.project_id or "").strip()
@@ -241,9 +233,7 @@ class Controller(vkt.Controller):
         ]
         if not proposal_items:
             proposal_items = [vkt.DataItem("Proposals", "No proposals found.")]
-        return vkt.DataResult(
-            vkt.DataGroup(*proposal_items)
-        )
+        return vkt.DataResult(vkt.DataGroup(*proposal_items))
 
     def push_blocks(self, params, **kwargs):
         project_id = str(params.project_id or "").strip()
