@@ -206,11 +206,11 @@ class Controller(vkt.Controller):
             ],
         )
 
-    @vkt.TableView(
+    @vkt.DataView(
         "Forma proposals",
         duration_guess=5,
         update_label="Load proposals",
-        description="Lists proposal URNs for the entered project/site ID.",
+        description="Lists proposal URNs for the entered project/site ID."
     )
     def forma_proposals(self, params, **kwargs):
         project_id = str(params.project_id or "").strip()
@@ -224,18 +224,22 @@ class Controller(vkt.Controller):
         )
         proposals = client.list_proposals(project_id, limit=20)
 
-        data = [
-            [
+        proposal_items = [
+            vkt.DataItem(
                 proposal.display_name,
-                proposal.proposal_id,
-                proposal.revision_id,
                 proposal.urn,
-            ]
+                subgroup=vkt.DataGroup(
+                    vkt.DataItem("Proposal ID", proposal.proposal_id),
+                    vkt.DataItem("Revision ID", proposal.revision_id),
+                    vkt.DataItem("Proposal URN", proposal.urn),
+                ),
+            )
             for proposal in proposals
         ]
-        return vkt.TableResult(
-            data,
-            column_headers=["Proposal", "Proposal ID", "Revision ID", "Proposal URN"],
+        if not proposal_items:
+            proposal_items = [vkt.DataItem("Proposals", "No proposals found.")]
+        return vkt.DataResult(
+            vkt.DataGroup(*proposal_items)
         )
 
     def push_blocks(self, params, **kwargs):
