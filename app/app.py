@@ -152,7 +152,6 @@ class Controller(vkt.Controller):
         objects = []
         if params.show_terrain:
             objects.append(_terrain_assembly_from_glb(terrain_glb))
-        labels = []
 
         for block in blocks:
             box = vkt.RectangularExtrusion(
@@ -166,18 +165,8 @@ class Controller(vkt.Controller):
             box.rotate(block.rotation_radians, direction=[0, 0, 1])
             box.translate([block.center_x, block.center_y, block.elevation])
             objects.append(box)
-            labels.append(
-                vkt.Label(
-                    vkt.Point(
-                        block.center_x,
-                        block.center_y,
-                        block.elevation + block.height,
-                    ),
-                    block.name,
-                )
-            )
 
-        return vkt.GeometryResult(vkt.Group(objects), labels=labels)
+        return vkt.GeometryResult(vkt.Group(objects))
 
     @vkt.TableView("Block schedule")
     def block_schedule(self, params, **kwargs):
