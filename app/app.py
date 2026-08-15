@@ -1,7 +1,11 @@
+import json
+from dataclasses import asdict
+
 import viktor as vkt
 
 from forma_api import FormaClient, parse_proposal_urn
 from forma_geometry import (
+    Block,
     GenerationSettings,
     GeometryValidationError,
     PlacementError,
@@ -9,7 +13,6 @@ from forma_geometry import (
     to_basic_geometry_payload,
 )
 from glb_bounds import Bounds3D, terrain_bounds_from_glb, terrain_triangles_from_glb
-
 
 APS_INTEGRATION_NAME = "forma-site"
 
@@ -301,21 +304,32 @@ def _generate_from_params(params, terrain_bounds: Bounds3D):
         maximum_height=float(params.maximum_height),
     )
     try:
-        return generate_blocks_in_bounds(
-            settings,
-            terrain_bounds,
-            edge_margin=float(params.terrain_edge_margin),
-            random_seed=repr(
-                (
-                    str(params.proposal_urn or "").strip(),
-                    settings,
-                    terrain_bounds,
-                    float(params.terrain_edge_margin),
-                )
-            ),
+        layout_input = json.dumps(
+            {
+                "proposal_urn": str(params.proposal_urn or "").strip(),
+                "settings": asdict(settings),
+                "terrain_bounds": asdict(terrain_bounds),
+                "edge_margin": float(params.terrain_edge_margin),
+            },
+            sort_keys=True,
         )
+        return [Block(**block) for block in _generate_layout(layout_input=layout_input)]
     except (GeometryValidationError, PlacementError) as exc:
         raise vkt.UserError(str(exc)) from exc
+
+
+@vkt.memoize
+def _generate_layout(*, layout_input: str) -> list[dict]:
+    values = json.loads(layout_input)
+    settings = GenerationSettings(**values["settings"])
+    terrain_bounds = Bounds3D(**values["terrain_bounds"])
+    blocks = generate_blocks_in_bounds(
+        settings,
+        terrain_bounds,
+        edge_margin=values["edge_margin"],
+        random_seed=layout_input,
+    )
+    return [asdict(block) for block in blocks]
 
 
 def _terrain_assembly_from_glb(data: bytes) -> vkt.TriangleAssembly:
