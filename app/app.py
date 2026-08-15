@@ -305,6 +305,14 @@ def _generate_from_params(params, terrain_bounds: Bounds3D):
             settings,
             terrain_bounds,
             edge_margin=float(params.terrain_edge_margin),
+            random_seed=repr(
+                (
+                    str(params.proposal_urn or "").strip(),
+                    settings,
+                    terrain_bounds,
+                    float(params.terrain_edge_margin),
+                )
+            ),
         )
     except (GeometryValidationError, PlacementError) as exc:
         raise vkt.UserError(str(exc)) from exc

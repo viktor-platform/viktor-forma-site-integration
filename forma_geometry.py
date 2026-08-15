@@ -59,14 +59,18 @@ class Block:
 
 
 def generate_blocks_in_bounds(
-    settings: GenerationSettings, bounds: Bounds3D, *, edge_margin: float
+    settings: GenerationSettings,
+    bounds: Bounds3D,
+    *,
+    edge_margin: float,
+    random_seed: str,
 ) -> list[Block]:
-    """Generate blocks within the active terrain's horizontal bounds."""
+    """Generate a repeatable block layout within the active terrain bounds."""
     settings.validate()
     if edge_margin < 0:
         raise GeometryValidationError("Terrain edge margin cannot be negative.")
 
-    rng = random.Random()
+    rng = random.Random(random_seed)
     blocks: list[Block] = []
     for index in range(1, settings.block_count + 1):
         width = rng.uniform(settings.minimum_width, settings.maximum_width)
