@@ -3,8 +3,8 @@ from dataclasses import asdict
 
 import viktor as vkt
 
-from forma_api import FormaClient, parse_proposal_urn
-from forma_geometry import (
+from .forma_api import FormaClient, parse_proposal_urn
+from .forma_geometry import (
     Block,
     GenerationSettings,
     GeometryValidationError,
@@ -12,7 +12,7 @@ from forma_geometry import (
     generate_blocks_in_bounds,
     to_basic_geometry_payload,
 )
-from glb_bounds import Bounds3D, terrain_bounds_from_glb, terrain_triangles_from_glb
+from .glb_bounds import Bounds3D, terrain_bounds_from_glb, terrain_triangles_from_glb
 
 APS_INTEGRATION_NAME = "forma-site"
 

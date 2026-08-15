@@ -3,7 +3,7 @@ import random
 import uuid
 from dataclasses import dataclass
 
-from glb_bounds import Bounds3D
+from .glb_bounds import Bounds3D
 
 
 class GeometryValidationError(ValueError):
