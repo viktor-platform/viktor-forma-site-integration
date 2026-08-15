@@ -2,6 +2,10 @@
 
 Generate building blocks inside a Forma proposal terrain, review the layout in VIKTOR, and publish the blocks as a new Forma proposal revision.
 
+![VIKTOR block composer preview](docs/images/app/viktor-block-composer-preview.png)
+
+![Building blocks published in Forma Site Design](docs/images/app/forma-site-design-building-blocks.png)
+
 ## What it does
 
 1. Reads a selected Forma proposal and its terrain bounds.
