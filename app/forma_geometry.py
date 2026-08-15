@@ -3,7 +3,7 @@ import random
 import uuid
 from dataclasses import dataclass
 
-from glb_bounds import Bounds3D
+from .glb_bounds import Bounds3D
 
 
 class GeometryValidationError(ValueError):
@@ -59,14 +59,18 @@ class Block:
 
 
 def generate_blocks_in_bounds(
-    settings: GenerationSettings, bounds: Bounds3D, *, edge_margin: float
+    settings: GenerationSettings,
+    bounds: Bounds3D,
+    *,
+    edge_margin: float,
+    random_seed: str,
 ) -> list[Block]:
-    """Generate blocks within the active terrain's horizontal bounds."""
+    """Generate a repeatable block layout within the active terrain bounds."""
     settings.validate()
     if edge_margin < 0:
         raise GeometryValidationError("Terrain edge margin cannot be negative.")
 
-    rng = random.Random()
+    rng = random.Random(random_seed)
     blocks: list[Block] = []
     for index in range(1, settings.block_count + 1):
         width = rng.uniform(settings.minimum_width, settings.maximum_width)
@@ -78,7 +82,9 @@ def generate_blocks_in_bounds(
         minimum_x, maximum_x = bounds.minimum_x + inset, bounds.maximum_x - inset
         minimum_y, maximum_y = bounds.minimum_y + inset, bounds.maximum_y - inset
         if minimum_x >= maximum_x or minimum_y >= maximum_y:
-            raise PlacementError("Terrain bounds are too small for these blocks and margin.")
+            raise PlacementError(
+                "Terrain bounds are too small for these blocks and margin."
+            )
 
         for _ in range(2_000):
             center_x = rng.uniform(minimum_x, maximum_x)
@@ -105,7 +111,9 @@ def generate_blocks_in_bounds(
                 )
                 break
         else:
-            raise PlacementError("The requested blocks do not fit inside the terrain bounds.")
+            raise PlacementError(
+                "The requested blocks do not fit inside the terrain bounds."
+            )
     return blocks
 
 
@@ -145,6 +153,7 @@ def to_basic_geometry_payload(block: Block) -> dict:
         "id": str(uuid.uuid4()),
         "name": block.name,
         "category": "building",
+        "userData": {},
         "geometry": {
             "type": "extrudedPolygon",
             "coordinates": [rectangle_ring(block)],

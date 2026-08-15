@@ -39,7 +39,9 @@ class ProposalReference:
     revision_id: str
 
 
-def parse_element_urn(urn: str, expected_type: str | None = None) -> tuple[str, str, str, str]:
+def parse_element_urn(
+    urn: str, expected_type: str | None = None
+) -> tuple[str, str, str, str]:
     parts = urn.strip().split(":")
     if len(parts) != 6 or parts[:2] != ["urn", "adsk-forma-elements"]:
         raise ValueError("Expected a complete Forma element URN.")
@@ -261,9 +263,7 @@ class FormaClient:
             json_body={"urns": urns},
         )
         container: Any = (
-            payload.get("results", payload)
-            if isinstance(payload, dict)
-            else payload
+            payload.get("results", payload) if isinstance(payload, dict) else payload
         )
         if isinstance(container, dict):
             raw_map = container.get("elements", container.get("element", container))
